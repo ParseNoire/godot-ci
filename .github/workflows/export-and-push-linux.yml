@@ -3,6 +3,9 @@ name: Export for Linux and push to itch.io
 on:
   workflow_call:
     inputs:
+      artifact-name:
+        type: string
+        required: true
       build-version:
         type: string
       build-version-file:
@@ -42,7 +45,7 @@ jobs:
         target: "${{ inputs.preset }}"
     - uses: actions/upload-artifact@v4
       with:
-        name: export-linux
+        name: ${{ inputs.artifact-name }}
         path: ./export
 
   push:
@@ -53,7 +56,7 @@ jobs:
     steps:
     - uses: actions/download-artifact@v4
       with:
-        name: export-linux
+        name: ${{ inputs.artifact-name }}
     - uses: parsenoire/butler-login-action@v1
       with:
         credentials: ${{ secrets.BUTLER_API_KEY }}
