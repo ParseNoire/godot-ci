@@ -11,7 +11,7 @@ on:
         required: true
       preset:
         type: string
-        default: ${{ startsWith(inputs.version, '4') && 'macOS' || 'Mac OSX' }}
+        required: true
       target:
         type: string
         required: true

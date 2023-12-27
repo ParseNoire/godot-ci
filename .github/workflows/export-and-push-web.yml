@@ -11,7 +11,7 @@ on:
         required: true
       preset:
         type: string
-        default: ${{ startsWith(inputs.version, '4') && 'Web' || 'HTML5' }}
+        required: true
       target:
         type: string
         required: true

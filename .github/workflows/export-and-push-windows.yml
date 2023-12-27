@@ -11,7 +11,7 @@ on:
         required: true
       preset:
         type: string
-        default: Windows Desktop
+        required: true
       target:
         type: string
         required: true

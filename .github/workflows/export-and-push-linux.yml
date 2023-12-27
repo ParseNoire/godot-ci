@@ -11,7 +11,7 @@ on:
         required: true
       preset:
         type: string
-        default: Linux/X11
+        required: true
       target:
         type: string
         required: true
