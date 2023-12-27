@@ -3,9 +3,16 @@ name: Export for Windows and push to itch.io
 on:
   workflow_call:
     inputs:
+      build-version:
+        type: string
+      build-version-file:
+        type: string
       debug:
         type: boolean
         default: false
+      godot-version:
+        type: string
+        required: true
       name:
         type: string
         required: true
@@ -13,9 +20,6 @@ on:
         type: string
         required: true
       target:
-        type: string
-        required: true
-      version:
         type: string
         required: true
     secrets:
@@ -27,14 +31,14 @@ jobs:
   export:
     name: Export
     runs-on: ubuntu-latest
-    container: ghcr.io/parsenoire/godot-headless:${{ inputs.version }}
+    container: ghcr.io/parsenoire/godot-headless:${{ inputs.godot-version }}
     steps:
     - uses: actions/checkout@v4
     - uses: parsenoire/godot-setup-action@v1
     - uses: parsenoire/godot-export-action@v1
       with:
         debug: ${{ inputs.debug }}
-        path: "./export/${{ inputs.name }}.exe"
+        output: "./export/${{ inputs.name }}.exe"
         target: "${{ inputs.preset }}"
     - uses: actions/upload-artifact@v4
       with:
@@ -56,3 +60,5 @@ jobs:
     - uses: parsenoire/butler-push-action@v1
       with:
         target: ${{ inputs.target }}
+        version: ${{ inputs.build-version }}
+        version-file: ${{ inputs.build-version-file }}
