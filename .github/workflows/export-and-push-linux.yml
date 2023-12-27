@@ -1,0 +1,54 @@
+name: Export for Linux and push to itch.io
+
+on:
+  workflow_call:
+    inputs:
+      name:
+        type: string
+        required: true
+      preset:
+        type: string
+        default: Linux/X11
+      target:
+        type: string
+        required: true
+      version:
+        type: string
+        required: true
+    secrets:
+      BUTLER_API_KEY:
+        required: true
+
+jobs:
+
+  export:
+    name: Export
+    runs-on: ubuntu-latest
+    container: ghcr.io/parsenoire/godot-headless:${{ inputs.version }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: parsenoire/godot-setup-action@v1
+    - uses: parsenoire/godot-export-action@v1
+      with:
+        path: "./export/${{ inputs.name }}"
+        target: "${{ inputs.preset }}"
+    - uses: actions/upload-artifact@v4
+      with:
+        name: export-linux
+        path: ./export
+
+  push:
+    name: Push to itch.io
+    needs: export
+    runs-on: ubuntu-latest
+    container: ghcr.io/parsenoire/butler:latest
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: export-linux
+    - uses: parsenoire/butler-login-action@v1
+      with:
+        credentials: ${{ secrets.BUTLER_API_KEY }}
+    - uses: parsenoire/butler-push-action@v1
+      with:
+        target: ${{ inputs.target }}

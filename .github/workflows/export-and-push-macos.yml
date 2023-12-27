@@ -1,0 +1,57 @@
+name: Export for macOS and push to itch.io
+
+on:
+  workflow_call:
+    inputs:
+      name:
+        type: string
+        required: true
+      preset:
+        type: string
+        default: Mac OSX
+      target:
+        type: string
+        required: true
+      version:
+        type: string
+        required: true
+    secrets:
+      BUTLER_API_KEY:
+        required: true
+
+jobs:
+
+  export:
+    name: Export
+    runs-on: ubuntu-latest
+    container: ghcr.io/parsenoire/godot-headless:${{ inputs.version }}
+    steps:
+    - uses: actions/checkout@v4
+    - uses: parsenoire/godot-setup-action@v1
+    - uses: parsenoire/godot-export-action@v1
+      with:
+        path: "./export/${{ inputs.name }}.zip"
+        target: "${{ inputs.preset }}"
+    - uses: actions/upload-artifact@v4
+      with:
+        name: export-macos
+        path: "./export/${{ inputs.name }}.zip"
+
+  push:
+    name: Push to itch.io
+    needs: export
+    runs-on: ubuntu-latest
+    container: ghcr.io/parsenoire/butler:latest
+    steps:
+    - uses: actions/download-artifact@v4
+      with:
+        name: export-macos
+        path: /tmp
+    - run: unzip "/tmp/${{ inputs.name }}.zip" -d .
+    - run: rm -v "/tmp/${{ inputs.name }}.zip"
+    - uses: parsenoire/butler-login-action@v1
+      with:
+        credentials: ${{ secrets.BUTLER_API_KEY }}
+    - uses: parsenoire/butler-push-action@v1
+      with:
+        target: ${{ inputs.target }}
