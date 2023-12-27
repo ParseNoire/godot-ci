@@ -3,6 +3,9 @@ name: Export for Windows and push to itch.io
 on:
   workflow_call:
     inputs:
+      debug:
+        type: boolean
+        default: false
       name:
         type: string
         required: true
@@ -30,6 +33,7 @@ jobs:
     - uses: parsenoire/godot-setup-action@v1
     - uses: parsenoire/godot-export-action@v1
       with:
+        debug: ${{ inputs.debug }}
         path: "./export/${{ inputs.name }}.exe"
         target: "${{ inputs.preset }}"
     - uses: actions/upload-artifact@v4
